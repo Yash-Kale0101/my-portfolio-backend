@@ -53,7 +53,7 @@ app.get('/api/certifications', (req, res) => {
 app.post('/api/chat', async (req, res) => {
     try {
         const userMsg = req.body.message;
-        const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+        const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
         
         const prompt = `
         You are a chatbot for a college student's portfolio website. 
