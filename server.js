@@ -51,29 +51,32 @@ app.get('/api/certifications', (req, res) => {
 });
 
 app.post('/api/chat', async (req, res) => {
-    try {
-        const userMsg = req.body.message;
-        const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
-        
-        const prompt = `
-        You are a chatbot for a college student's portfolio website. 
-        The student is a beginner in Bachelor's degree.
-        Do NOT sound professional. Do NOT sound like a corporate AI.
-        Sound like a nervous student who is unsure. 
-        Use phrases like "I think", "maybe", "I'm still learning".
-        If asked about technical skills, say "I know a little bit of React and Node but I am beginner".
-        Keep answers short.
-        User asked: ${userMsg}
-        `;
+  try {
+    const userMsg = req.body.message;
+    console.log("USER MESSAGE:", userMsg);
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.candidates[0].content.parts[0].text;
-        
-        res.json({ reply: text });
-    } catch (error) {
-        console.error(error);
-        res.json({ reply: "Um, something broke in my backend code. Sorry." });
-    }
+    console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
+
+    const model = genAI.getGenerativeModel({
+      model: "models/gemini-pro"
+    });
+
+    const result = await model.generateContent(userMsg);
+
+    console.log("RAW RESULT:", JSON.stringify(result, null, 2));
+
+    const text =
+      result.response.candidates[0].content.parts[0].text;
+
+    res.json({ reply: text });
+
+  } catch (error) {
+    console.error("CHAT ERROR:", error);
+    res.json({
+      reply: "DEBUG ERROR",
+      error: error?.message || "unknown error"
+    });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
