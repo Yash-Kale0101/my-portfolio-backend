@@ -67,8 +67,7 @@ app.post('/api/chat', async (req, res) => {
         `;
 
         const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const text = result.response.candidates[0].content.parts[0].text;
         
         res.json({ reply: text });
     } catch (error) {
