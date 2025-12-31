@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
+const fetch = (...args) =>
+  import('node-fetch').then(({ default: fetch }) => fetch(...args));
 dotenv.config();
 
 const app = express();
@@ -54,25 +54,33 @@ app.post('/api/chat', async (req, res) => {
   try {
     const userMsg = req.body.message;
 
-    const model = genAI.getGenerativeModel({
-      model: "models/gemini-1.5-flash"
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: userMsg }]
+            }
+          ]
+        })
+      }
+    );
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: userMsg }]
-        }
-      ]
-    });
+    const data = await response.json();
 
-    const text = result.response.text();
+    const text =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "I’m still learning… not sure what to say 😅";
 
     res.json({ reply: text });
 
-  } catch (error) {
-    console.error("CHAT ERROR:", error);
+  } catch (err) {
+    console.error("CHAT ERROR:", err);
     res.json({ reply: "Error in AI part." });
   }
 });
