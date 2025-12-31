@@ -58,26 +58,21 @@ app.post('/api/chat', async (req, res) => {
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           contents: [
             {
-              role: "user",
               parts: [
                 {
-                  text: `
-You are a friendly chatbot on a college student's personal portfolio website.
+                  text: `You are a chatbot on a college student's personal portfolio website.
+You should sound friendly, casual, and human.
+Do NOT say "I am a beginner" in every reply.
+Only mention being a beginner if asked about skills or experience.
+Keep replies short and natural.
 
-Behavior rules:
-- Answer like a normal human.
-- Be casual, short, and helpful.
-- Do NOT repeatedly say you are a beginner.
-- ONLY mention being a beginner if the user asks about skills, experience, or learning.
-- Otherwise, just answer the question normally.
-
-User question:
-${userMsg}
-                  `.trim()
+User question: ${userMsg}`
                 }
               ]
             }
@@ -88,28 +83,22 @@ ${userMsg}
 
     const data = await response.json();
 
-    const reply =
+    const text =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Hmm… not sure about that yet.";
+      "Hmm… not sure what to say 😅";
 
-    res.json({ reply });
+    res.json({ reply: text });
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    res.json({ reply: "Something went wrong. Try again." });
+    res.json({ reply: "Error in AI part." });
   }
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
-});    const data = await response.json();
-
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Hmm… not sure about that yet.";
-
-    res.json({ reply });
+});    res.json({ reply });
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
