@@ -61,7 +61,14 @@ app.post('/api/chat', async (req, res) => {
   model: "models/gemini-1.5-flash"
 });
 
-    const result = await model.generateContent(userMsg);
+    const result = await model.generateContent({
+  contents: [
+    {
+      role: "user",
+      parts: [{ text: userMsg }]
+    }
+  ]
+});
 
     console.log("RAW RESULT:", JSON.stringify(result, null, 2));
 
