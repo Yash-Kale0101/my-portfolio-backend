@@ -53,24 +53,19 @@ app.get('/api/certifications', (req, res) => {
 app.post('/api/chat', async (req, res) => {
   try {
     const userMsg = req.body.message;
-    console.log("USER MESSAGE:", userMsg);
-
-    console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
 
     const model = genAI.getGenerativeModel({
-  model: "models/gemini-1.5-flash"
-});
+      model: "models/gemini-1.5-flash"
+    });
 
     const result = await model.generateContent({
-  contents: [
-    {
-      role: "user",
-      parts: [{ text: userMsg }]
-    }
-  ]
-});
-
-    console.log("RAW RESULT:", JSON.stringify(result, null, 2));
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: userMsg }]
+        }
+      ]
+    });
 
     const text =
       result.response.candidates[0].content.parts[0].text;
@@ -78,11 +73,8 @@ app.post('/api/chat', async (req, res) => {
     res.json({ reply: text });
 
   } catch (error) {
-    console.error("CHAT ERROR:", error);
-    res.json({
-      reply: "DEBUG ERROR",
-      error: error?.message || "unknown error"
-    });
+    console.error("CHAT ERROR:", error.message);
+    res.json({ reply: "Error in AI part." });
   }
 });
 
