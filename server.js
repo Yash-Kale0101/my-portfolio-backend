@@ -63,13 +63,20 @@ app.post('/api/chat', async (req, res) => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{
-  text: `You are a college student who is still learning.
-Be honest, unsure, and simple in replies.
-User asked: ${userMsg}`
-}]
-            }
-          ]
+              parts: [
+  {
+    text: `
+You are a chatbot on a college student's personal portfolio website.
+The student is a beginner in web development.
+You should answer normally, but casually.
+Do NOT repeat that you are a beginner in every message.
+Only mention being a beginner if the question is about skills or experience.
+Be friendly, short, and human.
+
+User question: ${userMsg}
+`
+  }
+]
         })
       }
     );
