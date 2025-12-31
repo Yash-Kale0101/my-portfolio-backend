@@ -63,7 +63,11 @@ app.post('/api/chat', async (req, res) => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: userMsg }]
+              parts: [{
+  text: `You are a college student who is still learning.
+Be honest, unsure, and simple in replies.
+User asked: ${userMsg}`
+}]
             }
           ]
         })
