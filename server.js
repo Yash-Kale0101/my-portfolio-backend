@@ -67,10 +67,9 @@ app.post('/api/chat', async (req, res) => {
               parts: [
                 {
                   text: `You are a chatbot on a college student's personal portfolio website.
-You should sound friendly, casual, and human.
-Do NOT say "I am a beginner" in every reply.
-Only mention being a beginner if asked about skills or experience.
-Keep replies short and natural.
+You should answer normally and casually.
+Do NOT repeat that you are a beginner unless the question is about skills or experience.
+Be friendly, short, and human.
 
 User question: ${userMsg}`
                 }
@@ -83,26 +82,15 @@ User question: ${userMsg}`
 
     const data = await response.json();
 
-    const text =
+    const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Hmm… not sure what to say 😅";
+      "Hmm… I’m not sure, but I’ll try to learn more about it 😅";
 
-    res.json({ reply: text });
-
-  } catch (err) {
-    console.error("CHAT ERROR:", err);
-    res.json({ reply: "Error in AI part." });
-  }
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-});    res.json({ reply });
+    res.json({ reply });
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    res.json({ reply: "Something went wrong. Try again." });
+    res.json({ reply: "Something went wrong. Please try again." });
   }
 });
 
