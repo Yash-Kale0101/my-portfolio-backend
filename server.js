@@ -58,8 +58,8 @@ app.post('/api/chat', async (req, res) => {
     console.log("API KEY EXISTS:", !!process.env.GEMINI_API_KEY);
 
     const model = genAI.getGenerativeModel({
-      model: "models/gemini-pro"
-    });
+  model: "models/gemini-1.5-flash"
+});
 
     const result = await model.generateContent(userMsg);
 
