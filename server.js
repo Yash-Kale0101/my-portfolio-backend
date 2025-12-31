@@ -1,52 +1,53 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
 const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 const myProjectsList = [
-    {
-        id: 1,
-        title: "HTML Only Page",
-        desc: "This was my first assignment I made using only HTML tags.",
-        tech: "HTML5"
-    },
-    {
-        id: 2,
-        title: "Calculator App",
-        desc: "I tried to make a calculator logic but it has some bugs.",
-        tech: "JavaScript, HTML, CSS"
-    },
-    {
-        id: 3,
-        title: "Weather Widget",
-        desc: "Fetches weather but design is very basic.",
-        tech: "React, API"
-    }
+  {
+    id: 1,
+    title: "HTML Only Page",
+    desc: "This was my first assignment I made using only HTML tags.",
+    tech: "HTML5"
+  },
+  {
+    id: 2,
+    title: "Calculator App",
+    desc: "I tried to make a calculator logic but it has some bugs.",
+    tech: "JavaScript, HTML, CSS"
+  },
+  {
+    id: 3,
+    title: "Weather Widget",
+    desc: "Fetches weather but design is very basic.",
+    tech: "React, API"
+  }
 ];
 
 const myCerts = [
-    "Intro to Web Dev (Coursera)",
-    "JavaScript Basics (YouTube)",
-    "Python for Beginners"
+  "Intro to Web Dev (Coursera)",
+  "JavaScript Basics (YouTube)",
+  "Python for Beginners"
 ];
 
 app.get('/', (req, res) => {
-    res.send("Server is running okay.");
+  res.send("Server is running okay.");
 });
 
 app.get('/api/projects', (req, res) => {
-    res.json(myProjectsList);
+  res.json(myProjectsList);
 });
 
 app.get('/api/certifications', (req, res) => {
-    res.json(myCerts);
+  res.json(myCerts);
 });
 
 app.post('/api/chat', async (req, res) => {
@@ -57,35 +58,66 @@ app.post('/api/chat', async (req, res) => {
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [
             {
-              parts: [{
-                       text: `You are a chatbot on a college student's personal portfolio website. The student is a beginner in web development. You should answer normally, but casually. Do NOT repeat that you are a beginner in every message. Only mention being a beginner if the question is about skills or experience. Be friendly, short, and human.
-                       User question: ${userMsg}`
-  }
-]
+              role: "user",
+              parts: [
+                {
+                  text: `
+You are a friendly chatbot on a college student's personal portfolio website.
+
+Behavior rules:
+- Answer like a normal human.
+- Be casual, short, and helpful.
+- Do NOT repeatedly say you are a beginner.
+- ONLY mention being a beginner if the user asks about skills, experience, or learning.
+- Otherwise, just answer the question normally.
+
+User question:
+${userMsg}
+                  `.trim()
+                }
+              ]
+            }
+          ]
         })
       }
     );
 
     const data = await response.json();
 
-    const text =
+    const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "I’m still learning… not sure what to say 😅";
+      "Hmm… not sure about that yet.";
 
-    res.json({ reply: text });
+    res.json({ reply });
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    res.json({ reply: "Error in AI part." });
+    res.json({ reply: "Something went wrong. Try again." });
   }
 });
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+  console.log(`Server started on port ${PORT}`);
+});    const data = await response.json();
+
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Hmm… not sure about that yet.";
+
+    res.json({ reply });
+
+  } catch (err) {
+    console.error("CHAT ERROR:", err);
+    res.json({ reply: "Something went wrong. Try again." });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });
