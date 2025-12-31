@@ -67,17 +67,15 @@ app.post('/api/chat', async (req, res) => {
       ]
     });
 
-    const text =
-      result.response.candidates[0].content.parts[0].text;
+    const text = result.response.text();
 
     res.json({ reply: text });
 
   } catch (error) {
-    console.error("CHAT ERROR:", error.message);
+    console.error("CHAT ERROR:", error);
     res.json({ reply: "Error in AI part." });
   }
 });
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
