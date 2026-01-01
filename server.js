@@ -11,31 +11,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 let chatHistory = [];
 
 const BOT_CONTEXT = `
 You are a friendly chatbot on a college student's personal portfolio website.
 
-About the student:
+Student profile:
 - Pursuing a Bachelor's degree
 - Learning web development
 - Skills: HTML, CSS, JavaScript, basic React, basic Node.js
 - Projects:
-  1. HTML Only Page – first HTML assignment
-  2. Calculator App – simple calculator with some bugs
-  3. Weather Widget – React app using an API
+  1) HTML Only Page – first HTML assignment
+  2) Calculator App – simple calculator with some bugs
+  3) Weather Widget – React app using an API
 
-Personality rules:
-- Talk like a real human, not an AI
-- Do NOT repeat the same sentence again and again
-- Do NOT keep saying "I am a beginner" unless the question is about skills
-- Be conversational, natural, and slightly casual
-- Answer differently each time
-- Keep answers short but meaningful
-- If the user asks follow-up questions, respond accordingly
+Behavior rules:
+- Talk like a real human
+- Do not repeat the same sentence
+- Do not keep saying "I am a beginner"
+- Mention beginner status only if asked about skills or experience
+- Be conversational and casual
+- Respond differently to follow-up questions
+- Keep replies short and natural
 `;
-
 
 app.get('/', (req, res) => {
   res.send("Server is running okay.");
@@ -53,12 +51,10 @@ app.post('/api/chat', async (req, res) => {
   try {
     const userMsg = req.body.message;
 
-    
     chatHistory.push({
       role: "user",
       parts: [{ text: userMsg }]
     });
-
 
     chatHistory = chatHistory.slice(-8);
 
@@ -69,9 +65,9 @@ app.post('/api/chat', async (req, res) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           generationConfig: {
-            temperature: 0.8,
-            topP: 0.9,
-            maxOutputTokens: 150
+            temperature: 0.9,
+            topP: 0.95,
+            maxOutputTokens: 180
           },
           contents: [
             {
@@ -88,9 +84,8 @@ app.post('/api/chat', async (req, res) => {
 
     const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Hmm, I didn’t quite get that 😅";
+      "Hmm… give me a second to think 😅";
 
-    
     chatHistory.push({
       role: "model",
       parts: [{ text: reply }]
@@ -99,10 +94,9 @@ app.post('/api/chat', async (req, res) => {
     res.json({ reply });
 
   } catch (err) {
-    console.error("CHAT ERROR:", err);
     res.json({ reply: "Something went wrong. Please try again." });
   }
-};
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
