@@ -11,34 +11,31 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- SIMPLE IN-MEMORY CHAT HISTORY ---
+
 let chatHistory = [];
 
-const SYSTEM_CONTEXT = `
-You are a chatbot on a college student's personal portfolio website.
+const BOT_CONTEXT = `
+You are a friendly chatbot on a college student's personal portfolio website.
 
-Student details:
-- Degree: Bachelor's student
+About the student:
+- Pursuing a Bachelor's degree
 - Learning web development
 - Skills: HTML, CSS, JavaScript, basic React, basic Node.js
 - Projects:
-  1) HTML Only Page – first HTML assignment
-  2) Calculator App – basic calculator with some bugs
-  3) Weather Widget – React app using an API
+  1. HTML Only Page – first HTML assignment
+  2. Calculator App – simple calculator with some bugs
+  3. Weather Widget – React app using an API
 
-Personality:
-- Friendly
-- Honest
-- Beginner but confident
-- Casual, human tone
-
-Rules:
-- Answer clearly and directly
-- If asked about projects, list them
-- If asked about studies, mention bachelor's degree
-- Do NOT repeat "I am a beginner" unless relevant
-- Keep answers short and natural
+Personality rules:
+- Talk like a real human, not an AI
+- Do NOT repeat the same sentence again and again
+- Do NOT keep saying "I am a beginner" unless the question is about skills
+- Be conversational, natural, and slightly casual
+- Answer differently each time
+- Keep answers short but meaningful
+- If the user asks follow-up questions, respond accordingly
 `;
+
 
 app.get('/', (req, res) => {
   res.send("Server is running okay.");
@@ -56,14 +53,14 @@ app.post('/api/chat', async (req, res) => {
   try {
     const userMsg = req.body.message;
 
-    // Add user message to history
+    
     chatHistory.push({
       role: "user",
       parts: [{ text: userMsg }]
     });
 
-    // Keep only last 6 messages (to avoid token issues)
-    chatHistory = chatHistory.slice(-6);
+
+    chatHistory = chatHistory.slice(-8);
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -71,8 +68,16 @@ app.post('/api/chat', async (req, res) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          generationConfig: {
+            temperature: 0.8,
+            topP: 0.9,
+            maxOutputTokens: 150
+          },
           contents: [
-            { role: "user", parts: [{ text: SYSTEM_CONTEXT }] },
+            {
+              role: "user",
+              parts: [{ text: BOT_CONTEXT }]
+            },
             ...chatHistory
           ]
         })
@@ -83,9 +88,9 @@ app.post('/api/chat', async (req, res) => {
 
     const reply =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sorry, I couldn’t think of a good answer 😅";
+      "Hmm, I didn’t quite get that 😅";
 
-    // Add bot reply to history
+    
     chatHistory.push({
       role: "model",
       parts: [{ text: reply }]
@@ -97,7 +102,7 @@ app.post('/api/chat', async (req, res) => {
     console.error("CHAT ERROR:", err);
     res.json({ reply: "Something went wrong. Please try again." });
   }
-});
+};
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
